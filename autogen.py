@@ -4,7 +4,7 @@ The following code is designed to run on the docker container acilbwh/chestimagi
 The current version saves each step of the process into a result file csv
 
 Code Written by Nathan Wies
-6/28/2019
+8/1/2019
 """
 
 import os
@@ -66,18 +66,40 @@ def runfiles(files, startnum):
     i = startnum
     for filnam in files[startnum:]:
         print("Processing Scan Number " +str(i)+" of "+ str(len(files)-1) +" Named: " + filnam)
-        os.system("ConvertDicom --dir DicomDataFiles/"+ filnam +" -o InputFiles/" + filnam + "_input.nrrd >/dev/null")
-        os.system("GenerateMedianFilteredImage -i InputFiles/" + filnam + "_input.nrrd -o FilterFiles/" + filnam + "_filtered_ct.nrrd >/dev/null")
-        os.system("GeneratePartialLungLabelMap --ict  FilterFiles/" + filnam + "_filtered_ct.nrrd -o MapFiles/" + filnam + "_partialLungLabelMap.nrrd >/dev/null")
-        os.system("python ../ChestImagingPlatform/cip_python/phenotypes/parenchyma_phenotypes.py --in_ct InputFiles/" + filnam + "_input.nrrd --in_lm MapFiles/" + filnam + "_partialLungLabelMap.nrrd --cid InputFiles/" + filnam + "_input.nrrd -r WholeLung,LeftLung,RightLung --out_csv OutputFiles/" + filnam + "_total_parenchyma_phenotypes_file.csv >/dev/null")
-        i = i+1
+	dicomloc = finddicomdir(filnam)
+        if(os.path.isdir('DicomDataFiles/'+dicomloc)):
+            os.system("ConvertDicom --dir DicomDataFiles/"+ dicomloc +" -o InputFiles/" + filnam + "_input.nrrd >/dev/null")
+            os.system("GenerateMedianFilteredImage -i InputFiles/" + filnam + "_input.nrrd -o FilterFiles/" + filnam + "_filtered_ct.nrrd >/dev/null")
+            os.system("GeneratePartialLungLabelMap --ict  FilterFiles/" + filnam + "_filtered_ct.nrrd -o MapFiles/" + filnam + "_partialLungLabelMap.nrrd >/dev/null")
+            os.system("python ../ChestImagingPlatform/cip_python/phenotypes/parenchyma_phenotypes.py --in_ct InputFiles/" + filnam + "_input.nrrd --in_lm MapFiles/" + filnam + "_partialLungLabelMap.nrrd --cid InputFiles/" + filnam + "_input.nrrd -r WholeLung,LeftLung,RightLung --out_csv OutputFiles/" + filnam + "_total_parenchyma_phenotypes_file.csv >/dev/null")
+            i = i+1
+        else:
+            print("File " +str(dicomloc)+ " is not directory continuing to next scan")
+#if data is in subfolder this method finds it
+def finddicomdir(filnam):
+    subfiles = os.listdir('DicomDataFiles/'+filnam+'/')
+    filefound = filnam
+    if(os.path.isdir('DicomDataFiles/'+filnam)):
+        for file in subfiles:
+            if(os.path.isdir('DicomDataFiles/'+filnam+'/'+file)):
+                size = len(os.listdir('DicomDataFiles/'+filnam+'/'+file))
+                if(size>10):
+                    return filnam+'/'+file
+            else:
+                filefound = filnam
+        return filefound
+    else:
+        return filefound
 #combines output data into one file       
 def combine():
     files = os.listdir("OutputFiles/")
     filnum = len(files)
-    maindf = pd.read_csv("OutputFiles/"+files[0])
+    maindf = pd.read_csv("OutputFiles/"+files[0], error_bad_lines=False)
     for i in range(filnum-1):
-        df = pd.read_csv("OutputFiles/" + files[i+1])
-        maindf = maindf.append(df)
-        maindf.to_csv("First"+str(filnum)+"Scans.csv", index = False)
+        try:
+		df = pd.read_csv("OutputFiles/" + files[i+1], error_bad_lines=False)
+        	maindf = maindf.append(df)
+        	maindf.to_csv("First"+str(filnum)+"Scans.csv", index = False)
+        except Exception as e:
+            print("File " + files[i+1] + " failed") 
 main()
