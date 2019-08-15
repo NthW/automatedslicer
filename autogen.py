@@ -82,10 +82,12 @@ def finddicomdir(filnam):
         for file in subfiles:
             if(os.path.isdir('DicomDataFiles/'+filnam+'/'+file)):
                 size = len(os.listdir('DicomDataFiles/'+filnam+'/'+file))
-                if(size>20):
+                if(size>10):
                     return str(filnam+'/'+file)
                 else:
                     return findfolder(filnam+'/'+file)
+    else:
+        return "nondir"
 #combines output data into one file       
 def combine():
     files = os.listdir("OutputFiles/")
