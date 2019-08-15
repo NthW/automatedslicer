@@ -77,7 +77,6 @@ def runfiles(files, startnum):
             print("File " +str(dicomloc)+ " is not directory continuing to next scan")
 #if data is in subfolder this method finds it
 def finddicomdir(filnam):
-    filnam = path
     if(os.path.isdir('DicomDataFiles/'+filnam)):
         subfiles = os.listdir('DicomDataFiles/'+filnam+'/')
         for file in subfiles:
