@@ -76,16 +76,21 @@ def runfiles(files, startnum):
         else:
             print("File " +str(dicomloc)+ " is not directory continuing to next scan")
 #if data is in subfolder this method finds it
-def finddicomdir(filnam):
+def findfolder(filnam):
     if(os.path.isdir('DicomDataFiles/'+filnam)):
         subfiles = os.listdir('DicomDataFiles/'+filnam+'/')
-        for file in subfiles:
-            if(os.path.isdir('DicomDataFiles/'+filnam+'/'+file)):
-                size = len(os.listdir('DicomDataFiles/'+filnam+'/'+file))
-                if(size>10):
-                    return str(filnam+'/'+file)
-                else:
-                    return findfolder(filnam+'/'+file)
+        #check if initial folder works (has 30+ files)
+        if(len(subfiles)>30):
+            return str('DicomDataFiles/'+filnam)
+        else:
+            #continue recursively to find correct sub folder
+            for file in subfiles:
+                if(os.path.isdir('DicomDataFiles/'+filnam+'/'+file)):
+                    size = len(os.listdir('DicomDataFiles/'+filnam+'/'+file))
+                    if(size>30):
+                        return str(filnam+'/'+file)
+                    else:
+                        return findfolder(filnam+'/'+file)
     else:
         return "nondir"
 #combines output data into one file       
