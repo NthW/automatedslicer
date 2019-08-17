@@ -67,8 +67,8 @@ def runfiles(files, startnum):
     for filnam in files[startnum:]:
         print("Processing Scan Number " +str(i)+" of "+ str(len(files)-1) +" Named: " + filnam)
 	dicomloc = findfolder(filnam)[0]
-        if(os.path.isdir('DicomDataFiles/'+dicomloc)):
-            os.system("ConvertDicom --dir DicomDataFiles/"+ dicomloc +" -o InputFiles/" + filnam + "_input.nrrd >/dev/null")
+        if(os.path.isdir(dicomloc)):
+            os.system("ConvertDicom --dir "+ dicomloc +" -o InputFiles/" + filnam + "_input.nrrd >/dev/null")
             os.system("GenerateMedianFilteredImage -i InputFiles/" + filnam + "_input.nrrd -o FilterFiles/" + filnam + "_filtered_ct.nrrd >/dev/null")
             os.system("GeneratePartialLungLabelMap --ict  FilterFiles/" + filnam + "_filtered_ct.nrrd -o MapFiles/" + filnam + "_partialLungLabelMap.nrrd >/dev/null")
             os.system("python ../ChestImagingPlatform/cip_python/phenotypes/parenchyma_phenotypes.py --in_ct InputFiles/" + filnam + "_input.nrrd --in_lm MapFiles/" + filnam + "_partialLungLabelMap.nrrd --cid InputFiles/" + filnam + "_input.nrrd -r WholeLung,LeftLung,RightLung --out_csv OutputFiles/" + filnam + "_total_parenchyma_phenotypes_file.csv >/dev/null")
