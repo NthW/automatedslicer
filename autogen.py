@@ -66,7 +66,7 @@ def runfiles(files, startnum):
     i = startnum
     for filnam in files[startnum:]:
         print("Processing Scan Number " +str(i)+" of "+ str(len(files)-1) +" Named: " + filnam)
-	dicomloc = findfolder(filnam)[0]
+	dicomloc = findfolder(filnam)[0].replace("\\", "/")
         if(os.path.isdir(dicomloc)):
             os.system("ConvertDicom --dir "+ dicomloc +" -o InputFiles/" + filnam + "_input.nrrd >/dev/null")
             os.system("GenerateMedianFilteredImage -i InputFiles/" + filnam + "_input.nrrd -o FilterFiles/" + filnam + "_filtered_ct.nrrd >/dev/null")
