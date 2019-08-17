@@ -66,7 +66,7 @@ def runfiles(files, startnum):
     i = startnum
     for filnam in files[startnum:]:
         print("Processing Scan Number " +str(i)+" of "+ str(len(files)-1) +" Named: " + filnam)
-	dicomloc = findfolder(filnam)
+	dicomloc = findfolder(filnam)[0]
         if(os.path.isdir('DicomDataFiles/'+dicomloc)):
             os.system("ConvertDicom --dir DicomDataFiles/"+ dicomloc +" -o InputFiles/" + filnam + "_input.nrrd >/dev/null")
             os.system("GenerateMedianFilteredImage -i InputFiles/" + filnam + "_input.nrrd -o FilterFiles/" + filnam + "_filtered_ct.nrrd >/dev/null")
@@ -79,21 +79,17 @@ def runfiles(files, startnum):
 #if data is in subfolder this method finds it
 def findfolder(filnam):
     if(os.path.isdir('DicomDataFiles/'+filnam)):
-        subfiles = os.listdir('DicomDataFiles/'+filnam+'/')
-        #check if initial folder works (has 30+ files)
-        if(len(subfiles)>30):
-            return str(filnam)
-        else:
-            #continue recursively to find correct sub folder
-            for file in subfiles:
-                if(os.path.isdir('DicomDataFiles/'+filnam+'/'+file)):
-                    size = len(os.listdir('DicomDataFiles/'+filnam+'/'+file))
-                    if(size>30):
-                        return str(filnam+'/'+file)
-                    else:
-                        return findfolder(filnam+'/'+file)
+        folderlist = []
+        if(os.path.isdir('DicomDataFiles/'+filnam)):
+            dirname = 'DicomDataFiles/'+filnam
+            for root, dirs, files in os.walk(dirname):
+                for dire in dirs:
+                    checkfile = os.path.join(root, dire)
+                    if len(os.listdir(checkfile))>10:
+                         folderlist.append(checkfile)
+        return folderlist
     else:
-        return "nondir"
+        return ["nondir"]
 #combines output data into one file       
 def combine():
     files = os.listdir("OutputFiles/")
