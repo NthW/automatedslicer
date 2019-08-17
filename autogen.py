@@ -80,13 +80,14 @@ def runfiles(files, startnum):
 def findfolder(filnam):
     if(os.path.isdir('DicomDataFiles/'+filnam)):
         folderlist = []
-        if(os.path.isdir('DicomDataFiles/'+filnam)):
-            dirname = 'DicomDataFiles/'+filnam
-            for root, dirs, files in os.walk(dirname):
-                for dire in dirs:
-                    checkfile = os.path.join(root, dire)
-                    if len(os.listdir(checkfile))>10:
-                         folderlist.append(checkfile)
+        dirname = 'DicomDataFiles/'+filnam
+        if(len(os.listdir(dirname)))>10:
+                folderlist.append(dirname)
+        for root, dirs, files in os.walk(dirname):
+            for dire in dirs:
+                checkfile = os.path.join(root, dire)
+                if len(os.listdir(checkfile))>10:
+                     folderlist.append(checkfile)
         return folderlist
     else:
         return ["nondir"]
