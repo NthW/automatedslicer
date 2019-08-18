@@ -81,12 +81,12 @@ def findfolder(filnam):
     if(os.path.isdir('DicomDataFiles/'+filnam)):
         folderlist = []
         dirname = 'DicomDataFiles/'+filnam
-        if(len(os.listdir(dirname)))>10:
+        if(len(os.listdir(dirname)))>30:
                 folderlist.append(dirname)
         for root, dirs, files in os.walk(dirname):
             for dire in dirs:
                 checkfile = os.path.join(root, dire)
-                if len(os.listdir(checkfile))>10:
+                if len(os.listdir(checkfile))>30:
                      folderlist.append(checkfile)
         return folderlist
     else:
