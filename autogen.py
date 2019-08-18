@@ -88,7 +88,11 @@ def findfolder(filnam):
                 checkfile = os.path.join(root, dire)
                 if len(os.listdir(checkfile))>30:
                      folderlist.append(checkfile)
-        return folderlist
+        if(len(folderlist)>0):
+            return folderlist
+        else:
+            folderlist.append("nodirfound")
+            return folderlist
     else:
         return ["nondir"]
 #combines output data into one file       
