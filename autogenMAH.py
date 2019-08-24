@@ -64,18 +64,25 @@ def takeinput():
 #main pipeline for analysis         
 def runfiles(files, startnum):
     i = startnum
-    for filnam in files[startnum:]:
-        print("Processing Scan Number " +str(i)+" of "+ str(len(files)-1) +" Named: " + filnam)
-	dicomloc = findfolder(filnam)[0].replace("\\", "/")
-        if(os.path.isdir(dicomloc)):
-            os.system("ConvertDicom --dir "+ dicomloc +" -o InputFiles/" + filnam + "_input.nrrd >/dev/null")
-            os.system("GenerateMedianFilteredImage -i InputFiles/" + filnam + "_input.nrrd -o FilterFiles/" + filnam + "_filtered_ct.nrrd >/dev/null")
-            os.system("GeneratePartialLungLabelMap --ict  FilterFiles/" + filnam + "_filtered_ct.nrrd -o MapFiles/" + filnam + "_partialLungLabelMap.nrrd >/dev/null")
-            os.system("python ../ChestImagingPlatform/cip_python/phenotypes/parenchyma_phenotypes.py --in_ct InputFiles/" + filnam + "_input.nrrd --in_lm MapFiles/" + filnam + "_partialLungLabelMap.nrrd --cid InputFiles/" + filnam + "_input.nrrd -r WholeLung,LeftLung,RightLung --out_csv OutputFiles/" + filnam + "_total_parenchyma_phenotypes_file.csv >/dev/null")
-            i = i+1
-        else:
-            print("File " +str(dicomloc)+ " is not directory continuing to next scan")
-	    i = i + 1
+    for filename in files[startnum:]:
+        print("Processing Scan Number " +str(i)+" of "+ str(len(files)-1) +" Named: " + filename)
+        folders = findfolder(filename)
+        print("Found " + len(folders) + " scans to process in " + filename)
+        k = 0
+        for dicomloc in folders:
+            dicomloc = dicomloc.replace("\\", "/")
+            if(os.path.isdir(dicomloc)):
+                filnam = filename + str(k)
+                os.system("ConvertDicom --dir "+ dicomloc +" -o InputFiles/" + filnam + "_input.nrrd >/dev/null")
+                os.system("GenerateMedianFilteredImage -i InputFiles/" + filnam + "_input.nrrd -o FilterFiles/" + filnam + "_filtered_ct.nrrd >/dev/null")
+                os.system("GeneratePartialLungLabelMap --ict  FilterFiles/" + filnam + "_filtered_ct.nrrd -o MapFiles/" + filnam + "_partialLungLabelMap.nrrd >/dev/null")
+                os.system("python ../ChestImagingPlatform/cip_python/phenotypes/parenchyma_phenotypes.py --in_ct InputFiles/" + filnam + "_input.nrrd --in_lm MapFiles/" + filnam + "_partialLungLabelMap.nrrd --cid InputFiles/" + filnam + "_input.nrrd -r WholeLung,LeftLung,RightLung --out_csv OutputFiles/" + filnam + "_total_parenchyma_phenotypes_file.csv >/dev/null")
+                i = i+1
+                k = k+1
+            else:
+                print("File " +str(dicomloc)+ " is not directory continuing to next scan")
+                i = i + 1
+                k = k + 1
 #if data is in subfolder this method finds it
 def findfolder(filnam):
     if(os.path.isdir('DicomDataFiles/'+filnam)):
