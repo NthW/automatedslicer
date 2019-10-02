@@ -67,7 +67,7 @@ def runfiles(files, startnum):
     for filename in files[startnum:]:
         print("Processing Patient Number " +str(i)+" of "+ str(len(files)-1) +" Named: " + filename)
         folders = findfolder(filename)
-        print("Found " + len(folders) + " sub-scans to process in " + filename)
+        print("Found " + str(len(folders)) + " sub-scans to process in " + filename)
         k = 0
         for dicomloc in folders:
             dicomloc = dicomloc.replace("\\", "/")
