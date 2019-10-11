@@ -64,7 +64,7 @@ def takeinput():
 #main pipeline for analysis         
 def runfiles(files, startnum):
     i = startnum
-    files = files.sort()
+    files.sort()
     for filename in files[startnum:]:
         print("Processing Patient Number " +str(i)+" of "+ str(len(files)-1) +" Named: " + filename)
         folders = findfolder(filename)
