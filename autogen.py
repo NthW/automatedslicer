@@ -8,6 +8,7 @@ Code Written by Nathan Wies
 """
 
 import os
+import time
 import pandas as pd
 import numpy as np
 
@@ -75,18 +76,65 @@ def runfiles(files, startnum):
             dicomloc = dicomloc.replace("\\", "/")
             if(os.path.isdir(dicomloc)):
                 filnam = filename + str(k)
-                try:
-                    os.system("ConvertDicom --dir "+ dicomloc +" -o InputFiles/" + filnam + "_input.nrrd >/dev/null")
-                    os.system("GenerateMedianFilteredImage -i InputFiles/" + filnam + "_input.nrrd -o FilterFiles/" + filnam + "_filtered_ct.nrrd >/dev/null")
-                    os.system("GeneratePartialLungLabelMap --ict  FilterFiles/" + filnam + "_filtered_ct.nrrd -o MapFiles/" + filnam + "_partialLungLabelMap.nrrd >/dev/null")
-                    os.system("python ../ChestImagingPlatform/cip_python/phenotypes/parenchyma_phenotypes.py --in_ct InputFiles/" + filnam + "_input.nrrd --in_lm MapFiles/" + filnam + "_partialLungLabelMap.nrrd --cid InputFiles/" + filnam + "_input.nrrd -r WholeLung,LeftLung,RightLung --out_csv OutputFiles/" + filnam + "_total_parenchyma_phenotypes_file.csv >/dev/null")
-                except:
-                    print("Something went wrong while processing this scan, it is possible that the code found the wrong file, check that ", dicomloc, "contains the Dicom Series for the scan you wish to process")
+                if(inputfile(dicomloc, filnam)):
+                    if(filterfile(filnam)):
+                        if(mapfile(filnam)):
+                            if(outputfile(filnam)):
+                                print("Finished Scan")
+                            else:
+                                print("Failed")
+                        else:
+                            print("Failed")
+                    else:
+                        print("Failed")
+                else:
+                    print("Failed")
                 k = k+1
             else:
                 print("File " +str(dicomloc)+ " is not directory continuing to next scan")
                 k = k + 1
         i = i + 1
+        
+        
+def inputfile(dicomloc, filnam):
+    os.system("ConvertDicom --dir "+ dicomloc +" -o InputFiles/" + filnam + "_input.nrrd >/dev/null")
+    while not os.path.exists("InputFiles/"+filnam+"_input.nrrd"):
+        time.sleep(5)
+    if os.path.isfile("InputFiles/"+filnam+"_input.nrrd"):
+        print("Input File Created")
+        return True
+    else:
+        return False 
+    
+def filterfile(filnam):
+    os.system("GenerateMedianFilteredImage -i InputFiles/" + filnam + "_input.nrrd -o FilterFiles/" + filnam +"_filtered_ct.nrrd >/dev/null")   
+    while not os.path.exists("FilterFiles/"+filnam+"_filtered_ct.nrrd"):
+        time.sleep(5)
+    if os.path.isfile("FilterFiles/"+filnam+"_filtered_ct.nrrd"):
+        print("Filter File Created")
+        return True
+    else:
+        return False
+
+def mapfile(filnam):
+    os.system("GeneratePartialLungLabelMap --ict  FilterFiles/" + filnam + "_filtered_ct.nrrd -o MapFiles/" + filnam + "_partialLungLabelMap.nrrd >/dev/null")
+    while not os.path.exists("MapFiles/"+filnam+"_partialLungLabelMap.nrrd"):
+        time.sleep(5)
+    if os.path.isfile("MapFiles/"+filnam):
+        print("Map File Created")
+        return True
+    else:
+        return False 
+
+def outputfile(filnam):
+    os.system("python ../ChestImagingPlatform/cip_python/phenotypes/parenchyma_phenotypes.py --in_ct InputFiles/" + filnam + "_input.nrrd --in_lm MapFiles/" + filnam + "_partialLungLabelMap.nrrd --cid InputFiles/" + filnam + "_input.nrrd -r WholeLung,LeftLung,RightLung --out_csv OutputFiles/" + filnam + "_total_parenchyma_phenotypes_file.csv >/dev/null")
+    while not os.path.exists("OutputFiles/"+filnam+"_total_parenchyma_phenotypes_file.csv"):
+        time.sleep(5)
+    if os.path.isfile("OutputFiles/"+filnam+"_total_parenchyma_phenotypes_file.csv"):
+        print("Output File Created")
+        return True
+    else:
+        return False 
 #if data is in subfolder this method finds it
 def findfolder(filnam):
     if(os.path.isdir('DicomDataFiles/'+filnam)):
