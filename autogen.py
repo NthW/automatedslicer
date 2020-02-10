@@ -120,7 +120,7 @@ def mapfile(filnam):
     os.system("GeneratePartialLungLabelMap --ict  FilterFiles/" + filnam + "_filtered_ct.nrrd -o MapFiles/" + filnam + "_partialLungLabelMap.nrrd >/dev/null")
     while not os.path.exists("MapFiles/"+filnam+"_partialLungLabelMap.nrrd"):
         time.sleep(5)
-    if os.path.isfile("MapFiles/"+filnam):
+    if os.path.isfile("MapFiles/"+filnam+"_partialLungLabelMap.nrrd"):
         print("Map File Created")
         return True
     else:
