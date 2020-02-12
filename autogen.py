@@ -101,7 +101,11 @@ def runfiles(files, startnum):
         
         
 def inputfile(dicomloc, filnam):
-    os.system("ConvertDicom --dir "+ dicomloc +" -o InputFiles/" + filnam + "_input.nrrd >/dev/null")
+    if os.path.isfile("InputFiles/"+filnam+"_input.nrrd"):
+        print("Input File Already Exists")
+        return True
+    else:
+        os.system("ConvertDicom --dir "+ dicomloc +" -o InputFiles/" + filnam + "_input.nrrd >/dev/null")
     checktime = 0
     while not os.path.exists("InputFiles/"+filnam+"_input.nrrd"):
         time.sleep(5)
@@ -115,7 +119,11 @@ def inputfile(dicomloc, filnam):
         return False 
     
 def filterfile(filnam):
-    os.system("GenerateMedianFilteredImage -i InputFiles/" + filnam + "_input.nrrd -o FilterFiles/" + filnam +"_filtered_ct.nrrd >/dev/null")   
+    if os.path.isfile("FilterFiles/"+filnam+"_filtered_ct.nrrd"):
+        print("Filter File Already Exists")
+        return True
+    else:
+        os.system("GenerateMedianFilteredImage -i InputFiles/" + filnam + "_input.nrrd -o FilterFiles/" + filnam +"_filtered_ct.nrrd >/dev/null")
     checktime = 0
     while not os.path.exists("FilterFiles/"+filnam+"_filtered_ct.nrrd"):
         time.sleep(5)
@@ -129,7 +137,11 @@ def filterfile(filnam):
         return False
 
 def mapfile(filnam):
-    os.system("GeneratePartialLungLabelMap --ict  FilterFiles/" + filnam + "_filtered_ct.nrrd -o MapFiles/" + filnam + "_partialLungLabelMap.nrrd >/dev/null")
+    if os.path.isfile("MapFiles/"+filnam+"_partialLungLabelMap.nrrd"):
+        print("Map File Already Exists")
+        return True
+    else:
+        os.system("GeneratePartialLungLabelMap --ict  FilterFiles/" + filnam + "_filtered_ct.nrrd -o MapFiles/" + filnam + "_partialLungLabelMap.nrrd >/dev/null")
     checktime = 0
     while not os.path.exists("MapFiles/"+filnam+"_partialLungLabelMap.nrrd"):
         time.sleep(5)
@@ -143,7 +155,11 @@ def mapfile(filnam):
         return False 
 
 def outputfile(filnam):
-    os.system("python ../ChestImagingPlatform/cip_python/phenotypes/parenchyma_phenotypes.py --in_ct InputFiles/" + filnam + "_input.nrrd --in_lm MapFiles/" + filnam + "_partialLungLabelMap.nrrd --cid InputFiles/" + filnam + "_input.nrrd -r WholeLung,LeftLung,RightLung --out_csv OutputFiles/" + filnam + "_total_parenchyma_phenotypes_file.csv >/dev/null")
+    if os.path.isfile("OutputFiles/"+filnam+"_total_parenchyma_phenotypes_file.csv"):
+        print("Output File Already Exists")
+        return True
+    else:
+        os.system("python ../ChestImagingPlatform/cip_python/phenotypes/parenchyma_phenotypes.py --in_ct InputFiles/" + filnam + "_input.nrrd --in_lm MapFiles/" + filnam + "_partialLungLabelMap.nrrd --cid InputFiles/" + filnam + "_input.nrrd -r WholeLung,LeftLung,RightLung --out_csv OutputFiles/" + filnam + "_total_parenchyma_phenotypes_file.csv >/dev/null")
     checktime = 0
     while not os.path.exists("OutputFiles/"+filnam+"_total_parenchyma_phenotypes_file.csv"):
         time.sleep(5)
